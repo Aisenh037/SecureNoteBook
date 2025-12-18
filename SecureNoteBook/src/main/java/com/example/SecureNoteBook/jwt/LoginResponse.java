@@ -1,39 +1,46 @@
 package com.example.SecureNoteBook.jwt;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class LoginResponse {
+
+    @JsonProperty("jwtToken")
     private String jwtToken;
+
     private String username;
     private List<String> roles;
 
     public LoginResponse() {
     }
 
-    public LoginResponse(String username, List<String> roles, String jwtToken) {
+    public LoginResponse(String jwtToken, String username, List<String> roles) {
+        this.jwtToken = jwtToken;
         this.username = username;
         this.roles = roles;
-        this.jwtToken = jwtToken;
     }
 
-    public void setJwtToken(String jwtToken){
-        this.jwtToken = jwtToken;
-    }
-    public String getJwtToken(){
+    public String getJwtToken() {
         return jwtToken;
     }
 
-    public String getUsername(){
+    public void setJwtToken(String jwtToken) {
+        this.jwtToken = jwtToken;
+    }
+
+    public String getUsername() {
         return username;
     }
-    public void setUsername(String username){
+
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    public List<String> getRoles(){
+    public List<String> getRoles() {
         return roles;
     }
-    public void setRoles(List<String> roles){
+
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 }

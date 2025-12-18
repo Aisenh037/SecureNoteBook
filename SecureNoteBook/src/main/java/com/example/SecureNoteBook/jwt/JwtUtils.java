@@ -2,73 +2,74 @@ package com.example.SecureNoteBook.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.io.Decoders;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
 
 @Component
 public class JwtUtils {
+
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     @Value("${spring.app.jwtSecret}")
-    private  String jwtSecret;
+    private String jwtSecret;
 
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    public String getJwtFromHeader(HttpServletRequest request){
+    // ✅ ONE algorithm everywhere (HS256)
+    private SecretKey key() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        logger.debug("Authorization Header: {}", bearerToken);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
         }
         return null;
     }
 
-    public String generateJwtToken(UserDetails user){
-        String username = user.getUsername();
+    // ✅ Used by LOCAL login
+    public String generateJwtToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
-                .signWith(key())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token){
-        return Jwts.parser().
-                    verifyWith((SecretKey) key())
-                .build().parseSignedClaims(token)
-                .getPayload().getSubject();
+    // ✅ Used by OAUTH login
+    public String generateJwtFromUsername(String username) {
+        return generateJwtToken(username);
     }
 
-    private SecretKey key(){
-        // Using HMAC-SHA-512 for JWT signing
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    public String getUserNameFromJwtToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
-    public boolean validateJwtToken(String authToken){
-        try{
-            System.out.println("Validate");
-            Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(authToken);
+    public boolean validateJwtToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key())
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        }catch (MalformedJwtException e){
-            logger.error("Invalid JWT signature: {}", e.getMessage());
-        }catch (ExpiredJwtException e){
-            logger.error("Invalid JWT signature: {}", e.getMessage());
-        }catch (UnsupportedJwtException e){
-            logger.error("Invalid JWT signature: {}", e.getMessage());
-        }catch (IllegalArgumentException e){
-            logger.error("Invalid JWT signature: {}", e.getMessage());
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.error("Invalid JWT: {}", e.getMessage());
+            return false;
         }
-        return false;
     }
 }
