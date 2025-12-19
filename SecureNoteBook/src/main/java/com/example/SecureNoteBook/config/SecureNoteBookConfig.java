@@ -58,6 +58,7 @@ public class SecureNoteBookConfig {
                                 "/signin",
                                 "/oauth2/**",
                                 "/login/**",
+                                "auth/signup",
                                 "/error",
                                 "/hello"
                         ).permitAll()

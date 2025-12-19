@@ -1,6 +1,7 @@
 package com.example.SecureNoteBook.bootstrap;
 
 import com.example.SecureNoteBook.model.User;
+import com.example.SecureNoteBook.model.AuthProvider;
 import com.example.SecureNoteBook.repository.UserRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +25,8 @@ public class UserDataInitializer {
                 User admin = new User();
                 admin.setUsername("admin");
                 admin.setPassword(passwordEncoder.encode("admin@123"));
-                admin.setProvider("LOCAL");
+                admin.setEmail("admin@securenotebook.local");
+                admin.setProvider(AuthProvider.LOCAL);
                 admin.setEnabled(true);
                 admin.setRoles(Set.of("ROLE_ADMIN"));
                 userRepository.save(admin);
@@ -34,8 +36,9 @@ public class UserDataInitializer {
             if (userRepository.findByUsername("karan").isEmpty()) {
                 User user = new User();
                 user.setUsername("karan");
+                user.setEmail("karan@securenotebook.local");
                 user.setPassword(passwordEncoder.encode("kc@123"));
-                user.setProvider("LOCAL");
+                user.setProvider(AuthProvider.LOCAL);
                 user.setEnabled(true);
                 user.setRoles(Set.of("ROLE_USER"));
                 userRepository.save(user);

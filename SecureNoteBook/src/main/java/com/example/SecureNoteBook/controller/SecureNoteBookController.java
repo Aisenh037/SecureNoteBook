@@ -7,12 +7,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import com.example.SecureNoteBook.model.User;
+import com.example.SecureNoteBook.model.AuthProvider;
+import com.example.SecureNoteBook.repository.UserRepository;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import java.util.List;
 import java.util.Map;
@@ -24,19 +29,34 @@ public class SecureNoteBookController {
 
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
 
     public SecureNoteBookController(
             JwtUtils jwtUtils,
-            AuthenticationManager authenticationManager
+            AuthenticationManager authenticationManager,
+            UserRepository userRepository
     ) {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
     }
 
     /* ================= AUTH ================= */
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticate(@RequestBody LoginRequest request) {
+
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() ->
+                        new BadCredentialsException("Invalid username or password"));
+
+        if (user.getProvider() != AuthProvider.LOCAL) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message",
+                            "Use OAuth login for this account"
+                    ));
+        }
 
         try {
             Authentication authentication =
@@ -47,7 +67,8 @@ public class SecureNoteBookController {
                             )
                     );
 
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            UserDetails userDetails =
+                    (UserDetails) authentication.getPrincipal();
 
             String jwt = jwtUtils.generateJwtFromUsername(
                     userDetails.getUsername()
@@ -56,7 +77,7 @@ public class SecureNoteBookController {
             List<String> roles = userDetails.getAuthorities()
                     .stream()
                     .map(a -> a.getAuthority())
-                    .collect(Collectors.toList());
+                    .toList();
 
             return ResponseEntity.ok(
                     new LoginResponse(
@@ -72,10 +93,11 @@ public class SecureNoteBookController {
         }
     }
 
+
     /* ================= PROFILE ================= */
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    @GetMapping("/profile")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER','ROLE_ADMIN')")
+    @GetMapping("/api/profile")
     public ResponseEntity<?> profile() {
 
         Authentication authentication =

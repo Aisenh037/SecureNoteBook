@@ -35,6 +35,13 @@ public class Note {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
+    private boolean pinned = false;
+
+    public boolean isPinned() {
+        return pinned;
+    }
+
     /* ===== JPA lifecycle ===== */
     @PrePersist
     protected void onCreate() {
@@ -94,6 +101,10 @@ public class Note {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
     }
 
     /* ===== equality (ID-based) ===== */

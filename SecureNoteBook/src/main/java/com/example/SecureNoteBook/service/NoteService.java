@@ -38,8 +38,24 @@ public class NoteService {
                 user
         );
 
+        //Always initialize pinned
+        note.setPinned(false);
+
         return mapToResponse(noteRepository.save(note));
     }
+
+    public NoteResponse togglePin(Long id, String username) {
+        User user = getUser(username);
+
+        Note note = noteRepository
+                .findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Note not found"));
+
+        note.setPinned(!note.isPinned());
+
+        return mapToResponse(noteRepository.save(note));
+    }
+
 
     /* ================= READ (LEGACY – avoid in UI) ================= */
     @Transactional(Transactional.TxType.SUPPORTS)
@@ -60,7 +76,10 @@ public class NoteService {
         PageRequest pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by(Sort.Direction.DESC, "updatedAt")
+                Sort.by(
+                        Sort.Order.desc("pinned"),
+                        Sort.Order.desc("updatedAt")
+                )
         );
 
         return noteRepository
@@ -77,8 +96,17 @@ public class NoteService {
                 .findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
 
-        note.setTitle(req.getTitle());
-        note.setContent(req.getContent());
+        if (req.getTitle() != null) {
+            note.setTitle(req.getTitle());
+        }
+
+        if (req.getContent() != null) {
+            note.setContent(req.getContent());
+        }
+
+        if (req.getPinned() != null) {
+            note.setPinned(req.getPinned());
+        }
 
         return mapToResponse(noteRepository.save(note));
     }
@@ -107,6 +135,7 @@ public class NoteService {
                 note.getId(),
                 note.getTitle(),
                 note.getContent(),
+                note.isPinned(),
                 note.getCreatedAt(),
                 note.getUpdatedAt()
         );
