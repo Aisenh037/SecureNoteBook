@@ -1,0 +1,169 @@
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 48px 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.field {
+  margin-bottom: 18px;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #cbd5f5;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #2563eb;
+}
+
+.passwordWrap {
+  position: relative;
+}
+
+.eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #64748b;
+}
+
+.error {
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+}
+
+.button {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 28px 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.dividerText {
+  margin: 0 12px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.oauthBtn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #0f172a;
+}
+
+.oauthBtn:hover {
+  background: #f8fafc;
+}
+
+.oauthStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+.signup {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.signupBtn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.signupBtn:hover {
+  text-decoration: underline;
+}

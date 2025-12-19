@@ -4,8 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Secrets
 .env
 *.env
+application.properties
 
 
 ### STS ###
